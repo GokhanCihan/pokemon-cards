@@ -10,12 +10,16 @@ import Foundation
 struct APIService {
     let urlString: String
     
-    func getJSON<T: Decodable>() async throws -> T {
+    func getJSON() async throws -> PokemonTCG {
         guard
             let url = URL(string: urlString)
         else {
             throw APIError.invalidURL
         }
+        var request = URLRequest(url: url)
+        request.allHTTPHeaderFields = [
+            "X-Api-Key": "e61fbaee-7eaa-4759-9818-77b6f4ea2bac"
+        ]
         do {
             let (data, urlResponse) = try await URLSession.shared.data(from: url)
             guard
@@ -26,13 +30,13 @@ struct APIService {
             }
             let jsonDecoder = JSONDecoder()
             do {
-                let decodedData = try jsonDecoder.decode(T.self, from: data)
+                let decodedData = try jsonDecoder.decode(PokemonTCG.self, from: data)
                 return decodedData
             } catch {
-                throw APIError.dataDecodingError(error.localizedDescription)
+                throw error
             }
         } catch {
-            throw APIError.dataTaskError(error.localizedDescription)
+            throw error
         }
     }
 }

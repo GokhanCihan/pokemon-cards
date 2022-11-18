@@ -8,8 +8,8 @@
 import UIKit
 
 class ViewController: UICollectionViewController, URLSessionDelegate {
-    var cardList: [PokemonCard] = []
-    var filteredCards: [PokemonCard] = []
+    var cardList: [PokemonCardData] = []
+    var filteredCards: [PokemonCardData] = []
     var filterBar: UITextField!
     var task: URLSessionDataTask?
     let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -40,40 +40,19 @@ class ViewController: UICollectionViewController, URLSessionDelegate {
         else {
             fatalError("Unable to dequeue CardCell.")
         }
-        let imageUrl = cardList[indexPath.item].imageUrl
-        
-        Task {
-            cell.cardImage.image = await fetchImage(from: imageUrl)
-            cell.pokemonName.text = cardList[indexPath.item].name
-        }
+
         return cell
     }
     
     @MainActor
     func fetchCards() async {
-        let apiService = APIService(urlString: "https://api.pokemontcg.io/v1/cards?hp=gte99")
+        let apiService = APIService(urlString: "https://api.pokemontcg.io/v2/cards")
         do {
-            cardList = try await apiService.getJSON()
+            let fetchedResult = try await apiService.getJSON()
+            cardList = fetchedResult.data
         } catch {
-            print(debugDescription)
+            print(error)
         }
-    }
-    
-    @MainActor
-    func fetchImage(from urlString: String) async -> UIImage {
-        var imageData = Data()
-        let image = UIImage()
-        let apiService = APIService(urlString: urlString)
-        do {
-            imageData = try await apiService.getJSON()
-            if let image = UIImage(data: imageData) {
-                return image
-            }else {
-                print("fetch error")
-            }
-        }catch {
-        }
-        return image
     }
 
 }
