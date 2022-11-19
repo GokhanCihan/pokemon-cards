@@ -9,7 +9,7 @@ import UIKit
 
 class ViewController: UICollectionViewController, URLSessionDelegate {
     var cardList: [PokemonCardData] = []
-    var filteredCards: [PokemonCardData] = []
+    var filteredCards: [PokemonCardData]? = nil
     var filterBar: UITextField!
     var task: URLSessionDataTask?
     let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -31,7 +31,11 @@ class ViewController: UICollectionViewController, URLSessionDelegate {
     }
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return cardList.count
+        if let filteredCards = filteredCards {
+            return filteredCards.count
+        }else {
+            return 0
+        }
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -40,7 +44,9 @@ class ViewController: UICollectionViewController, URLSessionDelegate {
         else {
             fatalError("Unable to dequeue CardCell.")
         }
-
+        if let filteredCards = filteredCards {
+            cell.pokemonName.text = filteredCards[indexPath.item].name
+        }
         return cell
     }
     
@@ -50,9 +56,24 @@ class ViewController: UICollectionViewController, URLSessionDelegate {
         do {
             let fetchedResult = try await apiService.getJSON()
             cardList = fetchedResult.data
+            print(cardList.count)
         } catch {
             print(error)
         }
+    }
+    
+    func filterCards(byHP HP: Int) -> [PokemonCardData] {
+        var filtered: [PokemonCardData] = []
+        for card in cardList {
+            if let cardHP = Int(card.hp) {
+                if cardHP >= HP {
+                    filtered.append(card)
+                }
+            }else {
+               break
+            }
+        }
+        return filtered
     }
 
 }
