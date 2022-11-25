@@ -9,7 +9,7 @@ import Foundation
 
 // parse data recieved from Pokémon TCG API
 // PokemonTCG
-//   data     -> PokemonCardData
+//   data     ->    CardData
 //   page              id
 //  pageSize          name
 //   count             hp
@@ -23,12 +23,12 @@ import Foundation
 
 // MARK: - PokemonTCG
 struct PokemonTCG: Codable {
-    var data: [PokemonCardData]
+    var data: [CardData]
     var page, pageSize, count, totalCount: Int
 }
 
-// MARK: - PokemonCardData
-struct PokemonCardData: Codable {
+// MARK: - CardData
+struct CardData: Codable {
     var id, name: String
     var hp: String
     var artist: String
