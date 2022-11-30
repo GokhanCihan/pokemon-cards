@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7633AAE52932614B00892CD1 /* FilteredCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7633AAE42932614B00892CD1 /* FilteredCardCell.swift */; };
 		76999F7F291AC5AD007323F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F7E291AC5AD007323F3 /* AppDelegate.swift */; };
 		76999F81291AC5AD007323F3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F80291AC5AD007323F3 /* SceneDelegate.swift */; };
 		76999F83291AC5AD007323F3 /* CardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F82291AC5AD007323F3 /* CardsViewController.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7633AAE42932614B00892CD1 /* FilteredCardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteredCardCell.swift; sourceTree = "<group>"; };
 		76999F7B291AC5AD007323F3 /* pokemon-cards.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pokemon-cards.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		76999F7E291AC5AD007323F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		76999F80291AC5AD007323F3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -43,6 +45,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7633AAE3293260F100892CD1 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				7633AAE42932614B00892CD1 /* FilteredCardCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
 		76999F72291AC5AD007323F3 = {
 			isa = PBXGroup;
 			children = (
@@ -62,6 +72,7 @@
 		76999F7D291AC5AD007323F3 /* pokemon-cards */ = {
 			isa = PBXGroup;
 			children = (
+				7633AAE3293260F100892CD1 /* Cells */,
 				76BBE7B8292FA020000C7D30 /* Controllers */,
 				76AC82012924EA2900F228C2 /* Services */,
 				76999F7E291AC5AD007323F3 /* AppDelegate.swift */,
@@ -168,6 +179,7 @@
 				76AC82032924EA5F00F228C2 /* APIService.swift in Sources */,
 				76999F7F291AC5AD007323F3 /* AppDelegate.swift in Sources */,
 				76999F81291AC5AD007323F3 /* SceneDelegate.swift in Sources */,
+				7633AAE52932614B00892CD1 /* FilteredCardCell.swift in Sources */,
 				76999F93291BDCE1007323F3 /* PokemonTCG.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
