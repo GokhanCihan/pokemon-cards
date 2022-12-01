@@ -15,20 +15,10 @@ class CardsController {
         let artist: String
         let hp: Int
         let smallImage: UIImage
-        let largeImage: UIImage
+        let largeImage: String
         
-        func isEqualOrGreater(_ filter: String?) -> Bool {
-            guard
-                let typedHp = filter else { return true }
-            if typedHp.isEmpty {
-                return true
-            }
-            if
-                let typedHp = Int(typedHp) {
-                return hp >= typedHp
-            }else {
-                return true
-            }
+        func isEqualOrGreater(_ filter: Int) -> Bool {
+            return hp >= filter
         }
     }
 }

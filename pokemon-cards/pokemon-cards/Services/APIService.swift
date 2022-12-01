@@ -38,7 +38,7 @@ struct APIService {
                          artist: $0.artist,
                          hp: Int($0.hp)!,
                          smallImage: try getImage(urlString: $0.images.small),
-                         largeImage: try getImage(urlString: $0.images.large))
+                         largeImage: $0.images.large)
                 }
                 return editedData
             } catch {

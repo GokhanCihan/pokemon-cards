@@ -22,15 +22,14 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
     override func viewDidLoad() {
         super.viewDidLoad()
         Task {
-            cards = try await fetchCardData()
             configureLayoutHierachy()
             configureDataSource()
-            performQuery(with: nil)
+            cards = try await fetchCardData()
         }
     }
     @MainActor
     func fetchCardData() async throws -> [CardsController.Card] {
-        let apiService = APIService(urlString: "https://api.pokemontcg.io/v2/cards?page=1&pageSize=5")
+        let apiService = APIService(urlString: "https://api.pokemontcg.io/v2/cards?page=1&pageSize=10")
         do {
             let fetchedResult = try await apiService.getJSON()
             return fetchedResult
@@ -54,21 +53,16 @@ extension CardsViewController {
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemIdentifier)
         }
     }
-    func performQuery(with filter: String?) {
+    func performQuery(with filter: Int) {
         var filteredCards = [CardsController.Card]()
-        if let filter {
-            filteredCards = filterCards(with: filter).sorted{ $0.hp < $1.hp }
-        }else {
-            filteredCards = cards.sorted{ $0.hp < $1.hp }
-            print("\n\n\n\(filteredCards)\n\n\n")
-        }
+        filteredCards = filterCards(with: filter).sorted{ $0.hp < $1.hp }
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, CardsController.Card>()
         snapshot.appendSections([.main])
         snapshot.appendItems(filteredCards)
         dataSource.apply(snapshot, animatingDifferences: true)
     }
-    func filterCards(with filter: String?) -> [CardsController.Card] {
+    func filterCards(with filter: Int) -> [CardsController.Card] {
         return cards.filter { $0.isEqualOrGreater(filter) }
     }
 }
@@ -77,21 +71,29 @@ extension CardsViewController {
     func createLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { (sectionIndex: Int,
             layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
+            let smallImageHeight = CGFloat(342)
+            let smallImageWidth = CGFloat(245)
+            let itemWidth = smallImageWidth
+            let itemHeight = smallImageHeight / 0.835
+            
             let contentSize = layoutEnvironment.container.effectiveContentSize
-            print(contentSize.width)// Sil
-            let columns = contentSize.width > 800 ? 3 : 2
+            let columns = contentSize.width / itemWidth
             let spacing = CGFloat(10)
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                  heightDimension: .fractionalHeight(1.0))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(itemWidth),
+                                                  heightDimension: .absolute(itemHeight))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.3),
-                                                   heightDimension: .fractionalHeight(0.4))
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: columns)
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                   heightDimension: .absolute(itemHeight))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: Int(columns))
             group.interItemSpacing = .fixed(spacing)
 
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = spacing
-
+            section.contentInsets = NSDirectionalEdgeInsets(top: spacing, leading: CGFloat(0), bottom: spacing, trailing: CGFloat(0))
+            
+            print("contentSize(width: \(contentSize.width), height: \(contentSize.height))")// Sil
+            print("groupSize(width: \(group.layoutSize.widthDimension.dimension), height: \(group.layoutSize.heightDimension.dimension))")
+            print("itemSize(width: \(item.layoutSize.widthDimension.dimension), height: \(item.layoutSize.heightDimension.dimension))")
             return section
         }
         return layout
@@ -107,10 +109,10 @@ extension CardsViewController {
         view.addSubview(searchBar)
         
         NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: view.topAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 20),
+            collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -122,6 +124,12 @@ extension CardsViewController {
 }
 extension CardsViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        performQuery(with: searchText)
+        if !(searchText.count < 2) {
+            if let searchText = Int(searchText) {
+                performQuery(with: searchText)
+            }
+        }else {
+            performQuery(with: 1000)
+        }
     }
 }
