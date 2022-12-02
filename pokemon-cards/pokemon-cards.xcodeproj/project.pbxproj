@@ -7,29 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7633AAE52932614B00892CD1 /* FilteredCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7633AAE42932614B00892CD1 /* FilteredCardCell.swift */; };
 		76999F7F291AC5AD007323F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F7E291AC5AD007323F3 /* AppDelegate.swift */; };
 		76999F81291AC5AD007323F3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F80291AC5AD007323F3 /* SceneDelegate.swift */; };
-		76999F83291AC5AD007323F3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F82291AC5AD007323F3 /* ViewController.swift */; };
+		76999F83291AC5AD007323F3 /* CardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F82291AC5AD007323F3 /* CardsViewController.swift */; };
 		76999F86291AC5AD007323F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 76999F84291AC5AD007323F3 /* Main.storyboard */; };
 		76999F88291AC5AE007323F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 76999F87291AC5AE007323F3 /* Assets.xcassets */; };
 		76999F8B291AC5AE007323F3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 76999F89291AC5AE007323F3 /* LaunchScreen.storyboard */; };
-		76999F93291BDCE1007323F3 /* CardsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F92291BDCE1007323F3 /* CardsInfo.swift */; };
-		76999F95291BEA76007323F3 /* PokemonCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F94291BEA76007323F3 /* PokemonCard.swift */; };
-		76C1B5C5291D161200674F6F /* CardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C1B5C4291D161200674F6F /* CardCell.swift */; };
+		76999F93291BDCE1007323F3 /* PokemonTCG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76999F92291BDCE1007323F3 /* PokemonTCG.swift */; };
+		76AC82032924EA5F00F228C2 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AC82022924EA5F00F228C2 /* APIService.swift */; };
+		76BBE7BA292FA161000C7D30 /* CardsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76BBE7B9292FA161000C7D30 /* CardsController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7633AAE42932614B00892CD1 /* FilteredCardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteredCardCell.swift; sourceTree = "<group>"; };
 		76999F7B291AC5AD007323F3 /* pokemon-cards.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pokemon-cards.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		76999F7E291AC5AD007323F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		76999F80291AC5AD007323F3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		76999F82291AC5AD007323F3 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		76999F82291AC5AD007323F3 /* CardsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsViewController.swift; sourceTree = "<group>"; };
 		76999F85291AC5AD007323F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		76999F87291AC5AE007323F3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		76999F8A291AC5AE007323F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		76999F8C291AC5AE007323F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		76999F92291BDCE1007323F3 /* CardsInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfo.swift; sourceTree = SOURCE_ROOT; };
-		76999F94291BEA76007323F3 /* PokemonCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonCard.swift; sourceTree = "<group>"; };
-		76C1B5C4291D161200674F6F /* CardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCell.swift; sourceTree = "<group>"; };
+		76999F92291BDCE1007323F3 /* PokemonTCG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonTCG.swift; sourceTree = SOURCE_ROOT; };
+		76AC82022924EA5F00F228C2 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		76BBE7B9292FA161000C7D30 /* CardsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +45,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7633AAE3293260F100892CD1 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				7633AAE42932614B00892CD1 /* FilteredCardCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
 		76999F72291AC5AD007323F3 = {
 			isa = PBXGroup;
 			children = (
@@ -62,18 +72,35 @@
 		76999F7D291AC5AD007323F3 /* pokemon-cards */ = {
 			isa = PBXGroup;
 			children = (
+				7633AAE3293260F100892CD1 /* Cells */,
+				76BBE7B8292FA020000C7D30 /* Controllers */,
+				76AC82012924EA2900F228C2 /* Services */,
 				76999F7E291AC5AD007323F3 /* AppDelegate.swift */,
 				76999F80291AC5AD007323F3 /* SceneDelegate.swift */,
-				76999F82291AC5AD007323F3 /* ViewController.swift */,
-				76999F92291BDCE1007323F3 /* CardsInfo.swift */,
-				76999F94291BEA76007323F3 /* PokemonCard.swift */,
-				76C1B5C4291D161200674F6F /* CardCell.swift */,
+				76999F92291BDCE1007323F3 /* PokemonTCG.swift */,
 				76999F84291AC5AD007323F3 /* Main.storyboard */,
 				76999F87291AC5AE007323F3 /* Assets.xcassets */,
 				76999F89291AC5AE007323F3 /* LaunchScreen.storyboard */,
 				76999F8C291AC5AE007323F3 /* Info.plist */,
 			);
 			path = "pokemon-cards";
+			sourceTree = "<group>";
+		};
+		76AC82012924EA2900F228C2 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				76AC82022924EA5F00F228C2 /* APIService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		76BBE7B8292FA020000C7D30 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				76999F82291AC5AD007323F3 /* CardsViewController.swift */,
+				76BBE7B9292FA161000C7D30 /* CardsController.swift */,
+			);
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,12 +174,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				76999F83291AC5AD007323F3 /* ViewController.swift in Sources */,
-				76999F95291BEA76007323F3 /* PokemonCard.swift in Sources */,
+				76999F83291AC5AD007323F3 /* CardsViewController.swift in Sources */,
+				76BBE7BA292FA161000C7D30 /* CardsController.swift in Sources */,
+				76AC82032924EA5F00F228C2 /* APIService.swift in Sources */,
 				76999F7F291AC5AD007323F3 /* AppDelegate.swift in Sources */,
 				76999F81291AC5AD007323F3 /* SceneDelegate.swift in Sources */,
-				76999F93291BDCE1007323F3 /* CardsInfo.swift in Sources */,
-				76C1B5C5291D161200674F6F /* CardCell.swift in Sources */,
+				7633AAE52932614B00892CD1 /* FilteredCardCell.swift in Sources */,
+				76999F93291BDCE1007323F3 /* PokemonTCG.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
