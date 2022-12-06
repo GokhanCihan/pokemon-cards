@@ -18,6 +18,7 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
     let session = URLSession(configuration: URLSessionConfiguration.default)
     let searchBar = UISearchBar(frame: .zero)
     var cards = [CardsController.Card]()
+    var filteredCards = [CardsController.Card]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +30,7 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
     }
     @MainActor
     func fetchCardData() async throws -> [CardsController.Card] {
-        let apiService = APIService(urlString: "https://api.pokemontcg.io/v2/cards?page=1&pageSize=10")
+        let apiService = APIService(urlString: "https://api.pokemontcg.io/v2/cards?page=1&pageSize=5")
         do {
             let fetchedResult = try await apiService.getJSON()
             return fetchedResult
@@ -54,13 +55,14 @@ extension CardsViewController {
         }
     }
     func performQuery(with filter: Int) {
-        var filteredCards = [CardsController.Card]()
         filteredCards = filterCards(with: filter).sorted{ $0.hp < $1.hp }
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, CardsController.Card>()
         snapshot.appendSections([.main])
         snapshot.appendItems(filteredCards)
         dataSource.apply(snapshot, animatingDifferences: true)
+        
+        filteredCards.removeAll(keepingCapacity: false)
     }
     func filterCards(with filter: Int) -> [CardsController.Card] {
         return cards.filter { $0.isEqualOrGreater(filter) }
@@ -69,12 +71,12 @@ extension CardsViewController {
 
 extension CardsViewController {
     func createLayout() -> UICollectionViewLayout {
+        let smallImageHeight = CGFloat(342)
+        let smallImageWidth = CGFloat(245)
+        let itemWidth = smallImageWidth
+        let itemHeight = smallImageHeight / 0.835
         let layout = UICollectionViewCompositionalLayout { (sectionIndex: Int,
             layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection in
-            let smallImageHeight = CGFloat(342)
-            let smallImageWidth = CGFloat(245)
-            let itemWidth = smallImageWidth
-            let itemHeight = smallImageHeight / 0.835
             
             let contentSize = layoutEnvironment.container.effectiveContentSize
             let columns = contentSize.width / itemWidth
@@ -117,7 +119,10 @@ extension CardsViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        cardsCollectionView = collectionView
+        collectionView.delegate = self
+        collectionView.allowsSelection = true
+        collectionView.isUserInteractionEnabled = true
+        self.cardsCollectionView = collectionView
         
         searchBar.delegate = self
     }
@@ -131,5 +136,17 @@ extension CardsViewController: UISearchBarDelegate {
         }else {
             performQuery(with: 1000)
         }
+    }
+}
+
+extension CardsViewController {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let vc = CardDetailsViewController() //?????
+        guard let tappedCard = self.dataSource.itemIdentifier(for: indexPath) else { return }
+        vc.name = tappedCard.name
+        vc.artist = tappedCard.artist
+        vc.largeImage = tappedCard.largeImage
+        collectionView.deselectItem(at: indexPath, animated: true)
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
