@@ -19,6 +19,7 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
     let searchBar = UISearchBar(frame: .zero)
     var cards = [CardsController.Card]()
     var filteredCards = [CardsController.Card]()
+    var img = UIImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,6 +28,9 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
             configureDataSource()
             cards = try await fetchCardData()
         }
+        
+        view.addSubview(img)
+        img.image?.jpegData(compressionQuality: <#T##CGFloat#>)
     }
     @MainActor
     func fetchCardData() async throws -> [CardsController.Card] {
@@ -139,14 +143,14 @@ extension CardsViewController: UISearchBarDelegate {
     }
 }
 
-extension CardsViewController {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let vc = CardDetailsViewController() //?????
-        guard let tappedCard = self.dataSource.itemIdentifier(for: indexPath) else { return }
-        vc.name = tappedCard.name
-        vc.artist = tappedCard.artist
-        vc.largeImage = tappedCard.largeImage
-        collectionView.deselectItem(at: indexPath, animated: true)
-        navigationController?.pushViewController(vc, animated: true)
-    }
-}
+//extension CardsViewController {
+//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        let vc = CardDetailsViewController() //?????
+//        guard let tappedCard = self.dataSource.itemIdentifier(for: indexPath) else { return }
+//        vc.name = tappedCard.name
+//        vc.artist = tappedCard.artist
+//        vc.largeImage = tappedCard.largeImage
+//        collectionView.deselectItem(at: indexPath, animated: true)
+//        navigationController?.pushViewController(vc, animated: true)
+//    }
+//}

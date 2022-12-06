@@ -23,7 +23,6 @@ class FilteredCardCell: UICollectionViewCell {
     }
     
 }
-
 extension FilteredCardCell {
     func configureCell() {
         cardImage.translatesAutoresizingMaskIntoConstraints = false
@@ -39,11 +38,8 @@ extension FilteredCardCell {
         contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.borderWidth = 3
         
-        
         contentView.addSubview(cardImage)
         contentView.addSubview(cardLabel)
-        
-        
         
         NSLayoutConstraint.activate([
             cardImage.topAnchor.constraint(equalTo: contentView.topAnchor),
