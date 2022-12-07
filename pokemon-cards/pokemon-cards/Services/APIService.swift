@@ -37,7 +37,7 @@ struct APIService {
                          name: $0.name,
                          artist: $0.artist,
                          hp: Int($0.hp)!,
-                         smallImage: try getImage(urlString: $0.images.small),
+                         smallImage: try APIService(urlString: $0.images.small).getImage(),
                          largeImage: $0.images.large)
                 }
                 return editedData
@@ -49,7 +49,7 @@ struct APIService {
         }
     }
     
-    func getImage(urlString: String) throws -> UIImage {
+    func getImage() throws -> UIImage {
         guard
             let url = URL(string: urlString)
         else {
