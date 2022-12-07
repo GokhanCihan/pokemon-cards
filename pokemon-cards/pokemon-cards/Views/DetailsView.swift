@@ -8,11 +8,10 @@
 import UIKit
 
 class DetailsView: UIView {
-    var view = DetailsView()
     let largeImageView = UIImageView()
     let cardNameLabel = UILabel()
     let cardArtistLabel = UILabel()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureView()
@@ -24,7 +23,8 @@ class DetailsView: UIView {
 }
 extension DetailsView {
     func configureView() {
-        view.translatesAutoresizingMaskIntoConstraints = false
+        translatesAutoresizingMaskIntoConstraints = false
+        
         largeImageView.translatesAutoresizingMaskIntoConstraints = false
         largeImageView.contentMode = .scaleAspectFit
         
@@ -36,32 +36,25 @@ extension DetailsView {
         cardArtistLabel.adjustsFontForContentSizeCategory = true
         cardArtistLabel.textAlignment = .center
         
-        frame = bounds
-        addSubview(view)
-        view.addSubview(largeImageView)
-        view.addSubview(cardNameLabel)
-        view.addSubview(cardArtistLabel)
+        self.addSubview(largeImageView)
+        self.addSubview(cardNameLabel)
+        self.addSubview(cardArtistLabel)
 
         NSLayoutConstraint.activate([
-            view.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-            view.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
-            view.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
-            view.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-            
-            largeImageView.topAnchor.constraint(equalTo: view.topAnchor),
+            largeImageView.topAnchor.constraint(equalTo: self.topAnchor),
             largeImageView.heightAnchor.constraint(equalToConstant: CGFloat(495)),
             largeImageView.widthAnchor.constraint(equalToConstant: CGFloat(360)),
-            largeImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            largeImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             
             cardNameLabel.topAnchor.constraint(equalTo: largeImageView.bottomAnchor),
-            cardNameLabel.heightAnchor.constraint(equalToConstant: CGFloat(50)),
+            cardNameLabel.heightAnchor.constraint(equalToConstant: CGFloat(70)),
             cardNameLabel.leadingAnchor.constraint(equalTo: largeImageView.leadingAnchor),
             cardNameLabel.trailingAnchor.constraint(equalTo: largeImageView.trailingAnchor),
 
             cardArtistLabel.topAnchor.constraint(equalTo: cardNameLabel.bottomAnchor),
-            cardArtistLabel.heightAnchor.constraint(equalToConstant: CGFloat(50)),
+            cardArtistLabel.heightAnchor.constraint(equalToConstant: CGFloat(70)),
             cardArtistLabel.leadingAnchor.constraint(equalTo: cardNameLabel.leadingAnchor),
-            cardArtistLabel.trailingAnchor.constraint(equalTo: cardNameLabel.trailingAnchor),
+            cardArtistLabel.trailingAnchor.constraint(equalTo: cardNameLabel.trailingAnchor)
         ])
     }
 }
