@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessionDelegate {
+class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessionDelegate , UIGestureRecognizerDelegate{
     
     enum Section: CaseIterable {
         case main
@@ -19,6 +19,7 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
     let searchBar = UISearchBar(frame: .zero)
     var cards = [CardsController.Card]()
     var filteredCards = [CardsController.Card]()
+    let longPressRecognizer = UILongPressGestureRecognizer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,8 +63,6 @@ extension CardsViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(filteredCards)
         dataSource.apply(snapshot, animatingDifferences: true)
-        
-        filteredCards.removeAll(keepingCapacity: false)
     }
     func filterCards(with filter: Int) -> [CardsController.Card] {
         return cards.filter { $0.isEqualOrGreater(filter) }
@@ -104,6 +103,13 @@ extension CardsViewController {
     func configureLayoutHierachy() {
         let layout = createLayout()
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
+        collectionView.isUserInteractionEnabled = true
+        longPressRecognizer.numberOfTouchesRequired = 1
+        longPressRecognizer.minimumPressDuration = 0.5
+        longPressRecognizer.addTarget(self, action: #selector(handleLongPress))
+        longPressRecognizer.delegate = self
+        collectionView.addGestureRecognizer(longPressRecognizer)
+        
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
@@ -150,4 +156,13 @@ extension CardsViewController {
         collectionView.deselectItem(at: indexPath, animated: true)
         navigationController?.pushViewController(vc, animated: true)
     }
+    
+    @objc func handleLongPress(_ sender: UILongPressGestureRecognizer) {
+        let pressedLocation = sender.location(in: cardsCollectionView)
+        if let view = cardsCollectionView.hitTest(pressedLocation, with: nil) {
+            print(type(of: view))
+            print(view.isKind(of: UIView.self))
+        }
+    }
+    
 }

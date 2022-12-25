@@ -12,6 +12,7 @@ class FilteredCardCell: UICollectionViewCell {
     
     let cardImage = UIImageView()
     let cardLabel = UILabel()
+    var isFavorite = false
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -52,4 +53,5 @@ extension FilteredCardCell {
             cardLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.165)
         ])
     }
+    
 }
