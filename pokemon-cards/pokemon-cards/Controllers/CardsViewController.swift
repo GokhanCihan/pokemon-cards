@@ -19,7 +19,7 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
     let searchBar = UISearchBar(frame: .zero)
     var cards = [CardsController.Card]()
     var filteredCards = [CardsController.Card]()
-    let longPressRecognizer = UILongPressGestureRecognizer()
+    var favoriteCards = [CardsController.Card]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +46,11 @@ extension CardsViewController {
     func configureDataSource() {
         let cellRegistration = UICollectionView.CellRegistration<FilteredCardCell, CardsController.Card> {
             (cell, indexPath, card) in
+            let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.handleLongPress))
+            longPressRecognizer.numberOfTouchesRequired = 1
+            longPressRecognizer.minimumPressDuration = 0.5
+            longPressRecognizer.delegate = self
+            cell.addGestureRecognizer(longPressRecognizer)
             cell.cardImage.image = card.smallImage
             cell.cardLabel.text = card.name
         }
@@ -104,11 +109,6 @@ extension CardsViewController {
         let layout = createLayout()
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
         collectionView.isUserInteractionEnabled = true
-        longPressRecognizer.numberOfTouchesRequired = 1
-        longPressRecognizer.minimumPressDuration = 0.5
-        longPressRecognizer.addTarget(self, action: #selector(handleLongPress))
-        longPressRecognizer.delegate = self
-        collectionView.addGestureRecognizer(longPressRecognizer)
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         searchBar.translatesAutoresizingMaskIntoConstraints = false
@@ -156,13 +156,28 @@ extension CardsViewController {
         collectionView.deselectItem(at: indexPath, animated: true)
         navigationController?.pushViewController(vc, animated: true)
     }
-    
+}
+
+extension CardsViewController {
     @objc func handleLongPress(_ sender: UILongPressGestureRecognizer) {
-        let pressedLocation = sender.location(in: cardsCollectionView)
-        if let view = cardsCollectionView.hitTest(pressedLocation, with: nil) {
-            print(type(of: view))
-            print(view.isKind(of: UIView.self))
+        switch sender.state {
+        case .began:
+            if let pressedView = sender.view as? FilteredCardCell{
+                if let cardName = pressedView.cardLabel.text {
+                    print(cardName)
+                }
+            }
+            sender.state = .ended
+        default:
+            break
         }
     }
     
+    func manageFavorites(cardName: String) {
+        var favorite: CardsController.Card
+        favorite = (filteredCards.filter{$0.isNameEqual(cardName)})[0]
+        favoriteCards.append(favorite)
+        print(favoriteCards)
+    }
 }
+

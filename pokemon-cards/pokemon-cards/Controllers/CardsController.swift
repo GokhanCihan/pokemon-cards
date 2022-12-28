@@ -16,9 +16,13 @@ class CardsController {
         let hp: Int
         let smallImage: UIImage
         let largeImage: String
+        var isFavorite: Bool
         
         func isEqualOrGreater(_ filter: Int) -> Bool {
             return hp >= filter
+        }
+        func isNameEqual(_ filter: String) -> Bool {
+            return name == filter
         }
     }
 }
