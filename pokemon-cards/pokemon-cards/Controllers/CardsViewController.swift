@@ -164,7 +164,7 @@ extension CardsViewController {
         case .began:
             if let pressedView = sender.view as? FilteredCardCell{
                 if let cardName = pressedView.cardLabel.text {
-                    print(cardName)
+                    self.addFavorites(cardName: cardName)
                 }
             }
             sender.state = .ended
@@ -173,11 +173,12 @@ extension CardsViewController {
         }
     }
     
-    func manageFavorites(cardName: String) {
-        var favorite: CardsController.Card
-        favorite = (filteredCards.filter{$0.isNameEqual(cardName)})[0]
-        favoriteCards.append(favorite)
-        print(favoriteCards)
+    func addFavorites(cardName: String) {
+        for card in cards {
+            if card.name == cardName {
+                favoriteCards.append(card)
+            }
+        }
     }
 }
 
