@@ -19,7 +19,6 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
     let searchBar = UISearchBar(frame: .zero)
     var cards = [CardsController.Card]()
     var filteredCards = [CardsController.Card]()
-    var favoriteCards = [CardsController.Card]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -176,7 +175,19 @@ extension CardsViewController {
     func addFavorites(cardName: String) {
         for card in cards {
             if card.name == cardName {
-                favoriteCards.append(card)
+                saveFavorites(CardImage: card.smallImage, cardName: card.name)
+                break
+            }
+        }
+    }
+    
+    func saveFavorites(CardImage: UIImage, cardName: String) {
+        DispatchQueue.global(qos: .background).async {
+            let data = CardImage.jpegData(compressionQuality: 1.0)
+            
+            DispatchQueue.main.async {
+                let defaults = UserDefaults.standard
+                defaults.set(data, forKey: cardName)
             }
         }
     }
