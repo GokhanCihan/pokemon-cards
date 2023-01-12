@@ -12,7 +12,7 @@ class FilteredCardCell: UICollectionViewCell {
     
     let cardImage = UIImageView()
     let cardLabel = UILabel()
-    var isFavorite = false
+    var imageURLString = String()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
