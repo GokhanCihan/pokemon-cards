@@ -7,34 +7,63 @@
 
 import UIKit
 
-class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessionDelegate , UIGestureRecognizerDelegate{
+class CardsViewController: UIViewController, UICollectionViewDelegate, UIGestureRecognizerDelegate{
     
     enum Section: CaseIterable {
         case main
     }
-    let cardsController = CardsController()
     var cardsCollectionView: UICollectionView!
-    var dataSource: UICollectionViewDiffableDataSource<Section, CardsController.Card>!
+    var dataSource: UICollectionViewDiffableDataSource<Section, Card>!
     let session = URLSession(configuration: URLSessionConfiguration.default)
     let searchBar = UISearchBar(frame: .zero)
-    var cards = [CardsController.Card]()
-    var filteredCards = [CardsController.Card]()
+    var debounceWorkItem: DispatchWorkItem?
+    var cards = [Card]()
+    var smallCardImages = [UIImage]()
+    var favoriteCards = [Card]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        Task {
-            configureLayoutHierachy()
-            configureDataSource()
-            cards = try await fetchCardData()
+        configureLayoutHierachy()
+        configureDataSource()
+        loadFavorites()
+        for favoriteCard in favoriteCards {
+            print(favoriteCard.artist)
         }
     }
-    @MainActor
-    func fetchCardData() async throws -> [CardsController.Card] {
-        let apiService = APIService(urlString: "https://api.pokemontcg.io/v2/cards?page=1&pageSize=5")
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        debounceWorkItem?.cancel()
+        if !(searchText.count < 2) {
+            if Int(searchText) != nil {
+                debounceWorkItem = DispatchWorkItem {
+                    Task {
+                        let callString = self.constructStringForAPICall(with: searchText)
+                        print(searchText)
+                        self.cards = try await self.fetchCardData(for: callString)
+                        for try await card in Cards(cards: self.cards){
+                            if let image = try? await APIService(card.smallImageURLString).getImage(){
+                                self.smallCardImages.append(image)
+                            }
+                        }
+                        self.performSnapshot()
+                    }
+                }
+                if let debounceWorkItem = debounceWorkItem {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500), execute: debounceWorkItem)
+                }
+            }
+        }else {
+            self.cards.removeAll(keepingCapacity: false)
+            self.smallCardImages.removeAll(keepingCapacity: false)
+            self.performSnapshot()
+        }
+    }
+    
+    func fetchCardData(for urlString: String) async throws -> [Card] {
         do {
-            let fetchedResult = try await apiService.getJSON()
-            return fetchedResult
+            let cardData = try await APIService(urlString).getJSON(for: PokemonTCG.self)
+            return mapResult(of: cardData.data)
         } catch {
             throw error
         }
@@ -43,33 +72,29 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, URLSessio
 
 extension CardsViewController {
     func configureDataSource() {
-        let cellRegistration = UICollectionView.CellRegistration<FilteredCardCell, CardsController.Card> {
+        let cellRegistration = UICollectionView.CellRegistration<FilteredCardCell, Card> {
             (cell, indexPath, card) in
             let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.handleLongPress))
             longPressRecognizer.numberOfTouchesRequired = 1
             longPressRecognizer.minimumPressDuration = 0.5
             longPressRecognizer.delegate = self
             cell.addGestureRecognizer(longPressRecognizer)
-            cell.cardImage.image = card.smallImage
+            cell.cardImage.image = self.smallCardImages[indexPath.item]
             cell.cardLabel.text = card.name
+            cell.imageURLString = card.smallImageURLString
         }
-        dataSource = UICollectionViewDiffableDataSource<Section, CardsController.Card>(collectionView: cardsCollectionView) {
+        dataSource = UICollectionViewDiffableDataSource<Section, Card>(collectionView: cardsCollectionView) {
         (collectionView: UICollectionView,
          indexPath: IndexPath,
-         itemIdentifier: CardsController.Card) -> UICollectionViewCell? in
+         itemIdentifier: Card) -> UICollectionViewCell? in
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemIdentifier)
         }
     }
-    func performQuery(with filter: Int) {
-        filteredCards = filterCards(with: filter).sorted{ $0.hp < $1.hp }
-        
-        var snapshot = NSDiffableDataSourceSnapshot<Section, CardsController.Card>()
+    func performSnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Card>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(filteredCards)
+        snapshot.appendItems(cards)
         dataSource.apply(snapshot, animatingDifferences: true)
-    }
-    func filterCards(with filter: Int) -> [CardsController.Card] {
-        return cards.filter { $0.isEqualOrGreater(filter) }
     }
 }
 
@@ -96,10 +121,7 @@ extension CardsViewController {
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = spacing
             section.contentInsets = NSDirectionalEdgeInsets(top: spacing, leading: CGFloat(0), bottom: spacing, trailing: CGFloat(0))
-            
-            print("contentSize(width: \(contentSize.width), height: \(contentSize.height))")// Sil
-            print("groupSize(width: \(group.layoutSize.widthDimension.dimension), height: \(group.layoutSize.heightDimension.dimension))")
-            print("itemSize(width: \(item.layoutSize.widthDimension.dimension), height: \(item.layoutSize.heightDimension.dimension))")
+    
             return section
         }
         return layout
@@ -133,14 +155,47 @@ extension CardsViewController {
         searchBar.delegate = self
     }
 }
+
 extension CardsViewController: UISearchBarDelegate {
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if !(searchText.count < 2) {
-            if let searchText = Int(searchText) {
-                performQuery(with: searchText)
+
+    func constructStringForAPICall(with searchText: String) -> String {
+        return "https://api.pokemontcg.io/v2/cards?q=hp:[" + searchText
+        + "%20TO%20" + searchText + "]&orderBy=hp&pageSize=50"
+    }
+    
+    func mapResult(of cardData: [CardData]) -> [Card] {
+        cardData.map{ Card(id: $0.id,
+                           name: $0.name,
+                           artist: $0.artist,
+                           smallImageURLString: $0.images.small,
+                           largeImageURLString: $0.images.large)
+        }
+    }
+    
+    @objc func handleLongPress(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            if let pressedView = sender.view as? FilteredCardCell{
+                if let cardName = pressedView.cardLabel.text {
+                    self.addFavorites(with: cardName)
+                }
             }
-        }else {
-            performQuery(with: 1000)
+            sender.state = .ended
+        default:
+            break
+        }
+    }
+    
+    func addFavorites(with cardName: String) {
+        for card in self.cards{
+            if card.isNameEqual(cardName){
+                if !favoriteCards.contains([card]){
+                    self.favoriteCards.append(card)
+                    self.updateDefaults()
+                }else{
+                    break
+                }
+            }
         }
     }
 }
@@ -151,43 +206,33 @@ extension CardsViewController {
         guard let tappedCard = self.dataSource.itemIdentifier(for: indexPath) else { return }
         vc.name = tappedCard.name
         vc.artist = tappedCard.artist
-        vc.largeImageString = tappedCard.largeImage
+        vc.largeImageString = tappedCard.largeImageURLString
         collectionView.deselectItem(at: indexPath, animated: true)
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 extension CardsViewController {
-    @objc func handleLongPress(_ sender: UILongPressGestureRecognizer) {
-        switch sender.state {
-        case .began:
-            if let pressedView = sender.view as? FilteredCardCell{
-                if let cardName = pressedView.cardLabel.text {
-                    self.addFavorites(cardName: cardName)
-                }
-            }
-            sender.state = .ended
-        default:
-            break
+    func updateDefaults() {
+        let jsonEncoder = JSONEncoder()
+        
+        if let savedData = try? jsonEncoder.encode(self.favoriteCards) {
+            let defaults = UserDefaults.standard
+            defaults.set(savedData, forKey: "favoriteCards")
+        } else {
+            print("Save Failed")
         }
+        print(UserDefaults.standard.dictionaryRepresentation())
     }
     
-    func addFavorites(cardName: String) {
-        for card in cards {
-            if card.name == cardName {
-                saveFavorites(CardImage: card.smallImage, cardName: card.name)
-                break
-            }
-        }
-    }
-    
-    func saveFavorites(CardImage: UIImage, cardName: String) {
-        DispatchQueue.global(qos: .background).async {
-            let data = CardImage.jpegData(compressionQuality: 1.0)
-            
-            DispatchQueue.main.async {
-                let defaults = UserDefaults.standard
-                defaults.set(data, forKey: cardName)
+    func loadFavorites() {
+        let defaults = UserDefaults.standard
+        if let loadData = defaults.object(forKey: "favoriteCards") as? Data {
+            let jsonDecoder = JSONDecoder()
+            do {
+                self.favoriteCards = try jsonDecoder.decode([Card].self, from: loadData)
+            } catch {
+                print("Load failed")
             }
         }
     }
