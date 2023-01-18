@@ -32,13 +32,13 @@ struct APIService {
     
     func getJSON<T>(for type: T.Type) async throws -> T where T: Decodable {
         do {
-            return try await self.decodeJSON(for: T.self, from: self.dataResponseOfRequest())
+            return try await self.decodeJSON(for: T.self, from: self.dataResponseFromRequest())
         } catch {
             throw error
         }
     }
     
-    func dataResponseOfRequest() async throws -> Data {
+    func dataResponseFromRequest() async throws -> Data {
         let (data, urlResponse) = try await URLSession.shared.data(from: self.request())
         guard
             let httpResponse = urlResponse as? HTTPURLResponse,
@@ -58,6 +58,7 @@ struct APIService {
         return url
     }
     
+    // Create URL from string passed into APIService
     func createURL() throws -> URL {
         guard
             let url = URL(string: self.stringAPIURL)

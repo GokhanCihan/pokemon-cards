@@ -8,10 +8,10 @@
 import UIKit
 
 class CardsViewController: UIViewController, UICollectionViewDelegate, UIGestureRecognizerDelegate{
-    
     enum Section: CaseIterable {
         case main
     }
+    
     var cardsCollectionView: UICollectionView!
     var dataSource: UICollectionViewDiffableDataSource<Section, Card>!
     let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -27,19 +27,17 @@ class CardsViewController: UIViewController, UICollectionViewDelegate, UIGesture
         configureLayoutHierachy()
         configureDataSource()
         loadFavorites()
-        for favoriteCard in favoriteCards {
-            print(favoriteCard.artist)
-        }
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        /* Debouncing prevents firing searches continuously as user types. Waits for a specific
+         time before calling the API. */
         debounceWorkItem?.cancel()
         if !(searchText.count < 2) {
             if Int(searchText) != nil {
                 debounceWorkItem = DispatchWorkItem {
                     Task {
                         let callString = self.constructStringForAPICall(with: searchText)
-                        print(searchText)
                         self.cards = try await self.fetchCardData(for: callString)
                         for try await card in Cards(cards: self.cards){
                             if let image = try? await APIService(card.smallImageURLString).getImage(){
@@ -83,6 +81,7 @@ extension CardsViewController {
             cell.cardLabel.text = card.name
             cell.imageURLString = card.smallImageURLString
         }
+        
         dataSource = UICollectionViewDiffableDataSource<Section, Card>(collectionView: cardsCollectionView) {
         (collectionView: UICollectionView,
          indexPath: IndexPath,
@@ -90,6 +89,8 @@ extension CardsViewController {
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemIdentifier)
         }
     }
+    
+    // Update interface as data changed
     func performSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Card>()
         snapshot.appendSections([.main])
@@ -157,12 +158,13 @@ extension CardsViewController {
 }
 
 extension CardsViewController: UISearchBarDelegate {
-
+    
     func constructStringForAPICall(with searchText: String) -> String {
         return "https://api.pokemontcg.io/v2/cards?q=hp:[" + searchText
         + "%20TO%20" + searchText + "]&orderBy=hp&pageSize=50"
     }
     
+    // Initialize card objects from returnes card data
     func mapResult(of cardData: [CardData]) -> [Card] {
         cardData.map{ Card(id: $0.id,
                            name: $0.name,
@@ -187,20 +189,21 @@ extension CardsViewController: UISearchBarDelegate {
     }
     
     func addFavorites(with cardName: String) {
-        for card in self.cards{
-            if card.isNameEqual(cardName){
-                if !favoriteCards.contains([card]){
-                    self.favoriteCards.append(card)
-                    self.updateDefaults()
-                }else{
-                    break
-                }
+        // Check if card is already in favorites
+        for card in self.favoriteCards{
+            if card.name != cardName {
+                continue
+            }else{
+                self.favoriteCards.append(card)
+                self.updateDefaults()
+                break
             }
         }
     }
 }
 
 extension CardsViewController {
+    // Call detail view for tapped card
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let vc = DetailsViewController()
         guard let tappedCard = self.dataSource.itemIdentifier(for: indexPath) else { return }
@@ -213,18 +216,19 @@ extension CardsViewController {
 }
 
 extension CardsViewController {
+    // Save favorite card image(?) into userdefaults
     func updateDefaults() {
         let jsonEncoder = JSONEncoder()
         
         if let savedData = try? jsonEncoder.encode(self.favoriteCards) {
             let defaults = UserDefaults.standard
             defaults.set(savedData, forKey: "favoriteCards")
-        } else {
-            print("Save Failed")
+        }else{
+            print("save failed")
         }
-        print(UserDefaults.standard.dictionaryRepresentation())
     }
     
+    // Load favorite card image from userdefaults
     func loadFavorites() {
         let defaults = UserDefaults.standard
         if let loadData = defaults.object(forKey: "favoriteCards") as? Data {
