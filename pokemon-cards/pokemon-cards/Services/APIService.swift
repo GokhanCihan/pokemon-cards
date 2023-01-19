@@ -8,64 +8,87 @@
 import Foundation
 import UIKit
 
+/*
+ documentation: "https://docs.pokemontcg.io/api-reference/"
+ 
+ search with parameter: "https://api.pokemontcg.io/v2/cards?q=", append querry parameter
+ 
+ search HP range: "https://api.pokemontcg.io/v2/cards?q=hp:", append range:
+ "{100%20TO%20*}" means "an open range of values greater than 100"
+ 
+ order results: "https://api.pokemontcg.io/v2/cards?q=hp:{100%20TO%20*}&orderBy=", append parameter:
+ such as "hp", "number" etc.
+ 
+ limit number of returning cards: ""https://api.pokemontcg.io/v2/cards?q=hp:{100%20TO%20*}&pageSize=",
+ append integer: default = "250"
+ */
+
 struct APIService {
-    let urlString: String
+    var stringAPIURL: String
     
-    func getJSON() async throws -> [CardsController.Card] {
-        guard
-            let url = URL(string: urlString)
-        else {
-            throw APIError.invalidURL
+    init(_ stringAPIURL: String) {
+        self.stringAPIURL = stringAPIURL
+    }
+    
+    func getJSON<T>(for type: T.Type) async throws -> T where T: Decodable {
+        do {
+            return try await self.decodeJSON(for: T.self, from: self.dataResponseFromRequest())
+        } catch {
+            throw error
         }
+    }
+    
+    func dataResponseFromRequest() async throws -> Data {
+        let (data, urlResponse) = try await URLSession.shared.data(from: self.request())
+        guard
+            let httpResponse = urlResponse as? HTTPURLResponse,
+                httpResponse.statusCode == 200
+        else {
+            throw APIError.invalidResponse
+        }
+        return data
+    }
+    
+    func request() throws -> URL {
+        let url = try self.createURL()
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = [
             "X-Api-Key": "e61fbaee-7eaa-4759-9818-77b6f4ea2bac"
         ]
+        return url
+    }
+    
+    // Create URL from string passed into APIService
+    func createURL() throws -> URL {
+        guard
+            let url = URL(string: self.stringAPIURL)
+        else {
+            throw APIError.invalidURL
+        }
+        return url
+    }
+    
+    func decodeJSON<T>(for type: T.Type, from data: Data) throws -> T where T: Decodable {
+        let jsonDecoder = JSONDecoder()
         do {
-            let (data, urlResponse) = try await URLSession.shared.data(from: url)
-            guard
-                let httpResponse = urlResponse as? HTTPURLResponse,
-                    httpResponse.statusCode == 200
-            else {
-                throw APIError.invalidResponse
-            }
-            let jsonDecoder = JSONDecoder()
-            do {
-                let decodedData = try jsonDecoder.decode(PokemonTCG.self, from: data)
-                let editedData = try decodedData.data.map{
-                    CardsController.Card(id: $0.id,
-                         name: $0.name,
-                         artist: $0.artist,
-                         hp: Int($0.hp)!,
-                         smallImage: try APIService(urlString: $0.images.small).getImage(),
-                         largeImage: $0.images.large)
-                }
-                return editedData
-            } catch {
-                throw error
-            }
+            let decodedData = try jsonDecoder.decode(T.self, from: data)
+            return decodedData
         } catch {
             throw error
         }
     }
     
-    func getImage() throws -> UIImage {
-        guard
-            let url = URL(string: urlString)
-        else {
-            throw APIError.invalidURL
-        }
-        do {
-            let data = try Data(contentsOf: url)
-            if let image = UIImage(data: data){
-                return image
-            }else {
-                return UIImage(named: "notFound")!
-            }
-        } catch {
-            throw error
+    func getImage() async throws -> UIImage {
+        let url = try createURL()
+        
+        let data = try? Data(contentsOf: url)
+        if let image = UIImage(data: data!) {
+            return image
+        }else {
+            return UIImage(named: "notFound.jpg")!
         }
     }
+    
 }
 
 enum APIError: Error, LocalizedError {

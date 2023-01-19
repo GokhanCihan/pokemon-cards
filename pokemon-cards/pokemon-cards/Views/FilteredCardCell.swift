@@ -15,6 +15,7 @@ class FilteredCardCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.isUserInteractionEnabled = true
         configureCell()
     }
     
@@ -52,4 +53,5 @@ extension FilteredCardCell {
             cardLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.165)
         ])
     }
+    
 }
